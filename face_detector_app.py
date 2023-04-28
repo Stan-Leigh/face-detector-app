@@ -8,6 +8,11 @@ st.write("""
 This app takes in an image and tries to identify all the faces in the image.
 """)
 
+st.write("""## Choose image input method""")
+options = ['Camera', 'Upload']
+
+option = st.radio('Method', options, index=1)
+
 st.sidebar.header('User Input')
 
 # Collect image from the user
@@ -19,6 +24,12 @@ if uploaded_file is not None:
     cv.imwrite('output.jpg', cv.cvtColor(img_array, cv.COLOR_RGB2BGR))
 
     img = cv.imread('output.jpg')
+elif option == 'Camera':
+    image = st.camera_input('Capture Image', key='FirstCamera', 
+                            help="""This is a basic camera that takes a photo to detect the number of faces in it. 
+                                    Don\'t forget to allow access in order for the app to be able to use the devices camera.""")
+    bytes_data = image.getvalue()
+    img = cv.imdecode(np.frombuffer(bytes_data, np.uint8), cv.IMREAD_COLOR)
 else:
     img = cv.imread('lady.jpg')
 
