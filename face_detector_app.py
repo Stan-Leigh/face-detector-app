@@ -15,6 +15,9 @@ option = st.radio('Method', options, index=1)
 
 st.sidebar.header('User Input')
 
+# initial value for img
+img = None
+
 # Collect image from the user
 uploaded_file = st.sidebar.file_uploader("Upload your image in .jpg format", type=["jpg"])
 
@@ -28,8 +31,9 @@ elif option == 'Camera':
     image = st.camera_input('Capture Image', key='FirstCamera', 
                             help="""This is a basic camera that takes a photo to detect the number of faces in it. 
                                     Don\'t forget to allow access in order for the app to be able to use the devices camera.""")
-    bytes_data = image.getvalue()
-    img = cv.imdecode(np.frombuffer(bytes_data, np.uint8), cv.IMREAD_COLOR)
+    if image is not None:
+        bytes_data = image.getvalue()
+        img = cv.imdecode(np.frombuffer(bytes_data, np.uint8), cv.IMREAD_COLOR)
 else:
     img = cv.imread('lady.jpg')
 
@@ -44,41 +48,42 @@ else:
 
 # img = rescaleFrame(img)
 
-# convert image to grayscale
-gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+if img is not None:
+    # convert image to grayscale
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-# Haar cascades are really sensitive to noise in an image
-# Anything that looks like a face, haar cascade will detect it even if it isn't a face.
-# You can fine tune haar cascade to detect faces better by changing the minNeighbors and scaleFactor parameters
-haar_cascade = cv.CascadeClassifier('haar_face.xml')
+    # Haar cascades are really sensitive to noise in an image
+    # Anything that looks like a face, haar cascade will detect it even if it isn't a face.
+    # You can fine tune haar cascade to detect faces better by changing the minNeighbors and scaleFactor parameters
+    haar_cascade = cv.CascadeClassifier('haar_face.xml')
 
-faces_rect = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
+    faces_rect = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
 
-num_of_faces = len(faces_rect)
+    num_of_faces = len(faces_rect)
 
-st.markdown("## Number of faces detected")
-st.write('There are', num_of_faces, 'face(s) in this image')
+    st.markdown("## Number of faces detected")
+    st.write('There are', num_of_faces, 'face(s) in this image')
 
-for (x,y,w,h) in faces_rect:
-    x1, y1 = x+w, y+h
+    for (x,y,w,h) in faces_rect:
+        x1, y1 = x+w, y+h
 
-    cv.rectangle(img, (x,y), (x+w,y+h), (0,255,0), thickness=2)
+        cv.rectangle(img, (x,y), (x+w,y+h), (0,255,0), thickness=2)
 
-    # Top left design (x,y)
-    cv.line(img, (x, y), (x+30, y), (0,255,0), 5)
-    cv.line(img, (x, y), (x, y+30), (0,255,0), 5)
+        # Top left design (x,y)
+        cv.line(img, (x, y), (x+30, y), (0,255,0), 5)
+        cv.line(img, (x, y), (x, y+30), (0,255,0), 5)
 
-    # Top right design (x1,y)
-    cv.line(img, (x1, y), (x1-30, y), (0,255,0), 5)
-    cv.line(img, (x1, y), (x1, y+30), (0,255,0), 5)
+        # Top right design (x1,y)
+        cv.line(img, (x1, y), (x1-30, y), (0,255,0), 5)
+        cv.line(img, (x1, y), (x1, y+30), (0,255,0), 5)
 
-    # Bottom left design (x,y1)
-    cv.line(img, (x, y1), (x+30, y1), (0,255,0), 5)
-    cv.line(img, (x, y1), (x, y1-30), (0,255,0), 5)
+        # Bottom left design (x,y1)
+        cv.line(img, (x, y1), (x+30, y1), (0,255,0), 5)
+        cv.line(img, (x, y1), (x, y1-30), (0,255,0), 5)
 
-    # Bottom right design (x1,y1)
-    cv.line(img, (x1, y1), (x1-30, y1), (0,255,0), 5)
-    cv.line(img, (x1, y1), (x1, y1-30), (0,255,0), 5)
+        # Bottom right design (x1,y1)
+        cv.line(img, (x1, y1), (x1-30, y1), (0,255,0), 5)
+        cv.line(img, (x1, y1), (x1, y1-30), (0,255,0), 5)
 
-st.markdown("## Image display")
-st.image(img, channels='BGR', caption='Image')
+    st.markdown("## Image display")
+    st.image(img, channels='BGR', caption='Image')
